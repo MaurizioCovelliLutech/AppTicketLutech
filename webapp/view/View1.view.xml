@@ -1,0 +1,78 @@
+<mvc:View controllerName="yproject1.controller.View1"
+    xmlns:mvc="sap.ui.core.mvc" displayBlock="true"
+    xmlns="sap.m"
+    xmlns:up="sap.ui.unified"
+    xmlns:core="sap.ui.core">
+    
+    <Wizard id="wizard">
+        <WizardStep id="step1" title="Step 1: Seleziona Cliente e Tipo">
+            <VBox>
+                <Label text="Seleziona Cliente" />
+                <Select id="selectClient" items="{clients>/}">
+                    <core:Item key="{clients>key}" text="{clients>text}" />
+                </Select>
+
+                <Label text="Seleziona Tipo" />
+                <Select id="selectType" selectedKey="{selectedType>/value}" items="{types>/}">
+                    <core:Item key="{types>key}" text="{types>text}" />
+                </Select>
+            </VBox>
+        </WizardStep>
+
+        <WizardStep id="step2" title="Step 2: Dettagli">
+            <VBox>
+                <VBox visible="{= ${selectedType>/value} === 'AMS'}">
+                    <Label text="Codice Ticket" />
+                    <Input id="ticketCode" value="{AMSModel>/ticketCode}" placeholder="Inserisci Codice Ticket" />
+
+                    <Label text="Corpo Mail" />
+                    <TextArea id="emailBodyAMS" value="{AMSModel>/emailBody}" placeholder="Inserisci Corpo Mail" />
+
+                    <Label text="Ambiente" />
+                    <Select id="environment" items="{environments>/}">
+                        <core:Item key="{environments>key}" text="{environments>text}" />
+                    </Select>
+
+                    <Label text="Nome Variante" />
+                    <Input id="variantName" value="{AMSModel>/variantName}" placeholder="Inserisci Nome Variante" />
+
+                    <Label text="Oggetto/Transazione" />
+                    <Input id="transaction" value="{AMSModel>/transaction}" placeholder="Inserisci Transazione" />
+
+                    <Label text="Allegato" />
+                    <up:FileUploader
+                        id="fileUploader"
+                        name="myFileUpload"
+                        uploadUrl="upload/"
+                        tooltip="CARICA il file"
+                        uploadComplete="handleUploadComplete"/>
+                    <Button
+                        text="Upload File"
+                        press="handleUploadPress"/>
+                </VBox>
+
+                <VBox visible="{= ${selectedType>/value} === 'EVO'}">
+                    <Label text="Codice Evo" />
+                    <Input id="evoCode" value="{EVOModel>/evoCode}" placeholder="Inserisci Codice Evo" />
+
+                    <Label text="Corpo Mail" />
+                    <TextArea id="emailBodyEVO" value="{EVOModel>/emailBody}" placeholder="Inserisci Corpo Mail" />
+
+                    <Label text="Analisi Funzionale" />
+                    <TextArea id="functionalAnalysisDesc" value="{EVOModel>/analysisDesc}" placeholder="Inserisci Descrizione Analisi Funzionale" />
+                    
+                </VBox>
+            </VBox>
+        </WizardStep>
+
+        <WizardStep id="step3" title="Step 3: Invia Email">
+            <VBox>
+                <Label text="Invia a" />
+                <Input id="toEmail" value="tuamail@dominio.com" enabled="false" />
+                
+                <Label text="In CC" />
+                <Input id="ccEmail" placeholder="Inserisci email in CC" />
+            </VBox>
+        </WizardStep>
+    </Wizard>
+</mvc:View>
