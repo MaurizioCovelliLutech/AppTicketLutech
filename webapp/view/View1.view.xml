@@ -7,12 +7,12 @@
     <Wizard id="wizard">
         <WizardStep id="step1" title="Step 1: Seleziona Cliente e Tipo">
             <VBox>
-                <Label text="Seleziona Cliente" />
+                <Label text="Seleziona Cliente" required="true" />
                 <Select id="selectClient" items="{clients>/}">
                     <core:Item key="{clients>key}" text="{clients>text}" />
                 </Select>
 
-                <Label text="Seleziona Tipo" />
+                <Label text="Seleziona Tipo" required="true" />
                 <Select id="selectType" selectedKey="{selectedType>/value}" items="{types>/}">
                     <core:Item key="{types>key}" text="{types>text}" />
                 </Select>
@@ -40,15 +40,8 @@
                     <Input id="transaction" value="{AMSModel>/transaction}" placeholder="Inserisci Transazione" />
 
                     <Label text="Allegato" />
-                    <up:FileUploader
-                        id="fileUploader"
-                        name="myFileUpload"
-                        uploadUrl="upload/"
-                        tooltip="CARICA il file"
-                        uploadComplete="handleUploadComplete"/>
-                    <Button
-                        text="Upload File"
-                        press="handleUploadPress"/>
+                    <up:FileUploader id="fileUploader" name="AMSFileUpload" uploadUrl="upload/" tooltip="Carica File" change="onFileChangeAMS" />
+                    <Button text="Carica File" press="onFileChangeAMS" />
                 </VBox>
 
                 <VBox visible="{= ${selectedType>/value} === 'EVO'}">
@@ -60,7 +53,10 @@
 
                     <Label text="Analisi Funzionale" />
                     <TextArea id="functionalAnalysisDesc" value="{EVOModel>/analysisDesc}" placeholder="Inserisci Descrizione Analisi Funzionale" />
-                    
+
+                    <Label text="Allegato" />
+                    <up:FileUploader id="fileUploaderEVO" name="EVOFileUpload" uploadUrl="upload/" tooltip="Carica File" change="onFileChangeEVO" />
+                    <Button text="Carica File" press="onFileChangeEVO" />
                 </VBox>
             </VBox>
         </WizardStep>
@@ -69,10 +65,17 @@
             <VBox>
                 <Label text="Invia a" />
                 <Input id="toEmail" value="tuamail@dominio.com" enabled="false" />
-                
+
                 <Label text="In CC" />
-                <Input id="ccEmail" placeholder="Inserisci email in CC" />
+                
+                <MultiInput id="ccEmail"
+                    showValueHelp="false"
+                    placeholder="Inserisci email in CC"
+                    tokenUpdate="onTokenUpdate">
+                </MultiInput>
             </VBox>
+            <Button text="Invia Email" press="onSendMail" />
         </WizardStep>
     </Wizard>
 </mvc:View>
+

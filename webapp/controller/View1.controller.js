@@ -5,8 +5,9 @@ sap.ui.define([
     "sap/m/Dialog",
     "sap/m/List",
     "sap/m/StandardListItem",
-    "sap/ui/model/json/JSONModel"
-], function (Controller, MessageToast, SearchField, Dialog, List, StandardListItem, JSONModel) {
+    "sap/ui/model/json/JSONModel",
+    "sap/m/Token"
+], function (Controller, MessageToast, SearchField, Dialog, List, StandardListItem, JSONModel,Token) {
     "use strict";
 
     return Controller.extend("yproject1.controller.View1", {
@@ -33,6 +34,38 @@ sap.ui.define([
 
             var oSelectedTypeModel = new JSONModel({ value: "" });
             this.getView().setModel(oSelectedTypeModel, "selectedType");
+
+            var oCCModel = new sap.ui.model.json.JSONModel({
+                ccEmails: []
+            });
+        
+        
+
+            this.getView().setModel(oCCModel, "CCModel");
+            
+            var oMultiInput1 = this.getView().byId("ccEmail");
+		
+            var fnValidator = function(args){
+				var text = args.text;
+
+				return new Token({key: text, text: text});
+			};
+
+			oMultiInput1.addValidator(fnValidator);
+
+
+        },
+
+        onTokenUpdate: function (oEvent) {
+            var oCCModel = this.getView().getModel("CCModel");
+            var aTokens = oEvent.getSource().getTokens();
+            var aEmails = [];
+
+            aTokens.forEach(function (oToken) {
+                aEmails.push(oToken.getText());
+            });
+
+            oCCModel.setProperty("/ccEmails", aEmails);
         },
 
         onStep2Complete: function () {
@@ -74,7 +107,49 @@ sap.ui.define([
 
             this.getView().byId("wizard").nextStep();
         },
+        
+        onSendMail: function () {
+            var oSelectedType = this.getView().getModel("selectedType").getProperty("/value");
+            var oEmailDetails;
 
+            
+            if (oSelectedType === "AMS") {
+                var oAMSModel = this.getView().getModel("AMSModel").getData();
+                oEmailDetails = {
+                    subject: "AMS - " + oAMSModel.ticketCode,
+                    body: oAMSModel.emailBody
+                };
+            }
+            
+            else if (oSelectedType === "EVO") {
+                var oEVOModel = this.getView().getModel("EVOModel").getData();
+                oEmailDetails = {
+                    subject: "EVO - " + oEVOModel.evoCode,
+                    body: oEVOModel.emailBody
+                };
+            }
+
+            var aCCEmails = this.getView().getModel("CCModel").getProperty("/ccEmails");
+            oEmailDetails.ccEmails = aCCEmails.join(", ");
+
+            var sMailToLink = "mailto:tuamail@dominio.com" +
+                "?cc=" + encodeURIComponent(oEmailDetails.ccEmails) +
+                "&subject=" + encodeURIComponent(oEmailDetails.subject) +
+                "&body=" + encodeURIComponent(oEmailDetails.body);
+
+            window.location.href = sMailToLink;
+        },
+
+        onFileChangeAMS: function (oEvent) {
+            var oFileUploader = this.getView().byId("fileUploader");
+            var oFile = oFileUploader.oFileUpload.files[0]; 
+            this.getView().setModel(new JSONModel(oFile), "AMSModel");
+            if (oFile) {
+                var oAMSModel = this.getView().getModel("AMSModel");
+                oAMSModel.setProperty("/attachment", oFile);
+                MessageToast.show("File caricato per ams: " + oFile.name);
+            }
+        },
         /*onStep2Complete: function () {
             var selectedType = this.getView().getModel("selectedType").getProperty("/value");
 
